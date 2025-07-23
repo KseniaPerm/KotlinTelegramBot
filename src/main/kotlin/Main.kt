@@ -16,10 +16,10 @@ fun loadDictionary(): MutableList<Word> {
         val line = line.split("|")
         val word = Word(original = line[0], translate = line[1], correctAnswerCount = line[2].toIntOrNull() ?: 0)
         dictionary.add(word)
-        Thread.sleep(1000)
     }
     return dictionary
 }
+
 
 fun main() {
     val dictionary = loadDictionary()
