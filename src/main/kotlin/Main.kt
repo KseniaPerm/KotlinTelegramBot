@@ -20,7 +20,6 @@ fun loadDictionary(): MutableList<Word> {
     return dictionary
 }
 
-
 fun main() {
     val dictionary = loadDictionary()
     while (true) {
