@@ -38,10 +38,9 @@ fun main() {
                 println("Статистика")
                 val totalCount = dictionary.count()
                 println("Количество слов в словаре: $totalCount")
-                val learnedCount = dictionary.count { it.correctAnswerCount >= 3 }
+                val learnedCount = dictionary.count { it.correctAnswerCount >= CORRECT_ANSWER }
                 val percent = ((learnedCount.toDouble() / totalCount.toDouble()) * 100)
-                println("Выучено $learnedCount из $totalCount слов | ${String.format("%.2f", percent)}%")
-                println()
+                println("Выучено $learnedCount из $totalCount слов | ${String.format("%.2f", percent)}%\n")
             }
 
             0 -> {
@@ -55,3 +54,5 @@ fun main() {
         }
     }
 }
+
+const val CORRECT_ANSWER = 3
