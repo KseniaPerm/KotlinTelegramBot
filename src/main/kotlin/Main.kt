@@ -32,6 +32,18 @@ fun main() {
         when (number) {
             1 -> {
                 println("Учить слова")
+                val notLearnedList = dictionary.filter { it.correctAnswerCount < CORRECT_ANSWER }
+
+                if (notLearnedList.isEmpty()) {
+                    println("Все слова выучены")
+                    continue
+                }
+                val questionWords = notLearnedList.take(4).shuffled()
+                val correctAnswer = questionWords.random()
+                println()
+                println("${correctAnswer.original}:")
+                println(questionWords.forEachIndexed { index, answers -> println("${index + 1}.${answers.translate}") })
+                println()
             }
 
             2 -> {
