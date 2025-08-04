@@ -22,6 +22,17 @@ fun loadDictionary(): MutableList<Word> {
     return dictionary
 }
 
+fun saveDictionary(dictionary: MutableList<Word>) {
+    val wordsFile = File("words.txt")
+    val lines: List<String> = wordsFile.readLines()
+    val dictionary: MutableList<Word> = mutableListOf()
+    for (line in lines) {
+        val line = line.split("|")
+        val word = Word(original = line[0], translate = line[1], correctAnswerCount = line[2].toIntOrNull() ?: 0)
+        dictionary.add(word)
+    }
+}
+
 fun main() {
     val dictionary = loadDictionary()
     while (true) {
@@ -44,6 +55,23 @@ fun main() {
                 println("${correctAnswer.original}:")
                 println(questionWords.forEachIndexed { index, answers -> println("${index + 1}.${answers.translate}") })
                 println()
+                println("0 - меню")
+                val userAnswerInput = readln().toInt().minus(1)
+                if (userAnswerInput == -1) {
+                    println("Выход в меню")
+                    println()
+                    continue
+                }
+                val correctAnswerId = questionWords.indexOf(correctAnswer)
+                if (userAnswerInput == correctAnswerId) {
+                    println("Правильно")
+                    correctAnswer.correctAnswerCount++
+                    saveDictionary(dictionary)
+                    println()
+                } else {
+                    println("Неправильно! ${correctAnswer.original} - это ${correctAnswer.translate}")
+                    println()
+                }
             }
 
             2 -> {
