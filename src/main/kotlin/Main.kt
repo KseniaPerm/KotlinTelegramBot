@@ -38,7 +38,7 @@ fun main() {
                     println("Все слова выучены")
                     continue
                 }
-                val questionWords = notLearnedList.take(4).shuffled()
+                val questionWords = notLearnedList.shuffled().take(NOT_LEARNED_WORDS)
                 val correctAnswer = questionWords.random()
                 println()
                 println("${correctAnswer.original}:")
@@ -68,3 +68,4 @@ fun main() {
 }
 
 const val CORRECT_ANSWER = 3
+const val NOT_LEARNED_WORDS = 4
