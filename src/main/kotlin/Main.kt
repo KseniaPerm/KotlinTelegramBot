@@ -17,10 +17,16 @@ fun Question.asConsoleString(): String {
 }
 
 fun main() {
-    val trainer = LearnWordsTrainer()
+
+    val trainer = try {
+        LearnWordsTrainer()
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
 
     while (true) {
-        println("Введите число:\n1 - Учить слова\n2 - Статистика\n0 - Выход")
+        println("Меню:\n1 - Учить слова\n2 - Статистика\n0 - Выход")
 
         when (readln().toIntOrNull()) {
             1 -> {

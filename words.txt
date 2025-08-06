@@ -1,8 +1,8 @@
 hello | привет|3
-dog | собака|2
-cat | кошка|1
+dog | собака|3
+cat | кошка|3
 hat | шляпа|3
-pen | ручка|2
-glasses | очки|1
-bracelet | браслет|2
-window | окно|2
+pen | ручка|3
+glasses | очки|4
+bracelet | браслет|1
+window | окно|3
