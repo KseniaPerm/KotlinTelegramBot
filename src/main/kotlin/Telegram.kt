@@ -6,14 +6,38 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
+class TelegramBotService(val botToken: String) {
+    val client: HttpClient = HttpClient.newBuilder().build()
+
+    fun getUpdates(updateId: Int): String {
+        val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=${this}"
+        val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
+        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+        return response.body().toString()
+    }
+
+    fun String.encodeUrl(): String? = URLEncoder.encode(this, Charsets.UTF_8.name())
+
+    fun sendMessage(chatId: Long, text: String): String? {
+        val encoded = text.encodeUrl()
+        val urlSendMess = "https://api.telegram.org/bot${this}/sendMessage?chat_id=$chatId&text=$encoded"
+        val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlSendMess)).build()
+        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+        return response.body()
+    }
+}
+
 fun main(args: Array<String>) {
 
     val botToken = args[0]
     var updateId = 0
+    val telegramBotService = TelegramBotService(botToken)
 
     while (true) {
         Thread.sleep(2000)
-        val updates: String = getUpdates(botToken, updateId)
+        val updates: String = telegramBotService.getUpdates(updateId)
         println(updates)
 
         val startUpdateId = updates.lastIndexOf("update_id")
@@ -29,34 +53,11 @@ fun main(args: Array<String>) {
         val text = groups?.get(1)?.value
         println(text)
 
-        val chatIdRegex: Regex = "\"chat\":\\{\"id\":(\\d+)\"".toRegex()
+        val chatIdRegex: Regex = "\"chat\":\\{\"id\":(\\d+)".toRegex()
         val matchResult1: MatchResult? = chatIdRegex.find(updates)
         val groups1: MatchGroupCollection? = matchResult1?.groups
         val chatId: Long = groups1?.get(1)?.value?.toLongOrNull() ?: continue
 
-        sendMessage(botToken, chatId, "$text")
+        telegramBotService.sendMessage(chatId, "$text")
     }
-}
-
-fun getUpdates(botToken: String, upDateId: Int): String {
-    val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$upDateId"
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-    val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-    return response.body().toString()
-}
-
-fun String.encodeUrl(): String? = URLEncoder.encode(this, Charsets.UTF_8.name())
-
-fun sendMessage(botToken: String, chatId: Long, text: String): String? {
-    val urlSendMessage = "http://api.telegram.org/bot$botToken/sendMessage"
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val encodeText = text.encodeUrl()
-    val requestBody: String? = "chat_id=$chatId&text=$encodeText"
-    val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
-        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-        .build()
-    val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
-    return response.body()
 }
