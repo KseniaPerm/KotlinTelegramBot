@@ -1,40 +1,41 @@
 package org.example
 
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
-
 fun main(args: Array<String>) {
 
     val botToken = args[0]
     var updateId = 0
+    val telegramBotService = TelegramBotService(botToken)
+    val updateIdRegex: Regex = "\"update_id\":([0-9]+)[,}]".toRegex()
+    val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
+    val chatIdRegex: Regex = "\"chat\":\\{\"id\":(\\d+)".toRegex()
 
     while (true) {
         Thread.sleep(2000)
-        val updates: String = getUpdates(botToken, updateId)
+        val updates: String = telegramBotService.getUpdates(updateId)
         println(updates)
 
-        val startUpdateId = updates.lastIndexOf("update_id")
-        val endUpdateId = updates.lastIndexOf(",\n\"message\"")
-        if (startUpdateId == -1 || endUpdateId == -1) continue
-        val updateIdString = updates.substring(startUpdateId + 11, endUpdateId)
-        println(updateIdString)
-        updateId = updateIdString.toInt() + 1
+        val updateIdGroups = updateIdRegex.find(updates)?.groups
+        val newUpdateId = updateIdGroups?.get(1)?.value?.toInt() ?: 0
+        updateId = newUpdateId + 1
 
-        val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
+
         val matchResult: MatchResult? = messageTextRegex.find(updates)
         val groups = matchResult?.groups
-        val text = groups?.get(1)?.value
+        val text = groups?.get(1)?.value?.decodeUnicode()
         println(text)
+
+        val matchResult1: MatchResult? = chatIdRegex.find(updates)
+        val groups1: MatchGroupCollection? = matchResult1?.groups
+        val chatId: Long = groups1?.get(1)?.value?.toLongOrNull() ?: continue
+
+        telegramBotService.sendMessage(chatId, "$text")
     }
 }
 
-fun getUpdates(botToken: String, upDateId: Int): String {
-    val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$upDateId"
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-    val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-    return response.body().toString()
+fun String.decodeUnicode(): String {
+    return this.replace("""\\u([0-9a-fA-F]{4})""".toRegex()) { matchResult ->
+        val hexCode = matchResult.groupValues[1]
+        val codePoint = hexCode.toInt(16)
+        String(Character.toChars(codePoint))
+    }
 }
