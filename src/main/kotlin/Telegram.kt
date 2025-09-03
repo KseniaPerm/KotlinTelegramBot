@@ -8,6 +8,8 @@ fun main(args: Array<String>) {
     val updateIdRegex: Regex = "\"update_id\":([0-9]+)[,}]".toRegex()
     val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
     val chatIdRegex: Regex = "\"chat\":\\{\"id\":(\\d+)".toRegex()
+    val dataRegex: Regex = "\"data\":\"(.+?)\"".toRegex()
+    val trainer = LearnWordsTrainer()
 
     while (true) {
         Thread.sleep(2000)
@@ -28,7 +30,20 @@ fun main(args: Array<String>) {
         val groups1: MatchGroupCollection? = matchResult1?.groups
         val chatId: Long = groups1?.get(1)?.value?.toLongOrNull() ?: continue
 
+        val data = dataRegex.find(updates)?.groups?.get(1)?.value?.decodeUnicode()
+
+        if (text?.lowercase() == "hello") {
+            telegramBotService.sendMessage(chatId, "Hello")
+        }
+        if (text?.lowercase() == "menu") {
+            telegramBotService.sendMenu(botToken, chatId)
+        }
+        if (data?.lowercase() == "statistics_clicked") {
+            telegramBotService.sendMessage(chatId, "Выучено 10 из 10 слов | 100%")
+        }
+
         telegramBotService.sendMessage(chatId, "$text")
+        telegramBotService.sendMenu(botToken, chatId)
     }
 }
 
