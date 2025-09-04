@@ -2,6 +2,12 @@ package org.example
 
 import java.io.File
 
+data class Word(
+    val original: String,
+    val translate: String,
+    var correctAnswerCount: Int = 0,
+)
+
 data class Statistics(
     val totalCount: Int,
     val learnedCount: Int,
@@ -28,10 +34,11 @@ class LearnWordsTrainer {
     fun getNextQuestion(): Question? {
         val notLearnedList = dictionary.filter { it.correctAnswerCount < CORRECT_ANSWER }
         if (notLearnedList.isEmpty()) return null
-       val questionWords = if (notLearnedList.size < NOT_LEARNED_WORDS){
-          val  learnedList = dictionary.filter { it.correctAnswerCount >= CORRECT_ANSWER}.shuffled()
-            notLearnedList.shuffled().take(NOT_LEARNED_WORDS) + learnedList.take( NOT_LEARNED_WORDS - notLearnedList.size)
-        } else{
+        val questionWords = if (notLearnedList.size < NOT_LEARNED_WORDS) {
+            val learnedList = dictionary.filter { it.correctAnswerCount >= CORRECT_ANSWER }.shuffled()
+            notLearnedList.shuffled()
+                .take(NOT_LEARNED_WORDS) + learnedList.take(NOT_LEARNED_WORDS - notLearnedList.size)
+        } else {
             notLearnedList.shuffled().take(NOT_LEARNED_WORDS)
         }.shuffled()
         val correctAnswer = questionWords.random()

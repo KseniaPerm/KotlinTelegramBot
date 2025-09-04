@@ -3,12 +3,6 @@ package org.example
 import kotlin.Int
 import kotlin.String
 
-data class Word(
-    val original: String,
-    val translate: String,
-    var correctAnswerCount: Int = 0,
-)
-
 fun Question.asConsoleString(): String {
     val variants = this.variants
         .mapIndexed { index: Int, word: Word -> "${index + 1} - ${word.translate}" }

@@ -35,12 +35,16 @@ fun main(args: Array<String>) {
         if (text?.lowercase() == "hello") {
             telegramBotService.sendMessage(chatId, "Hello")
         }
-        if (text?.lowercase() == "menu") {
+        if (text?.lowercase() == "menu" && text == "/start") {
             telegramBotService.sendMenu(botToken, chatId)
         }
         if (data?.lowercase() == "statistics_clicked") {
             telegramBotService.sendMessage(chatId, "Выучено 10 из 10 слов | 100%")
         }
+        if (data?.lowercase() == "learn_words_clicked") {
+            telegramBotService.sendMessage(chatId, "Изучение слов")
+        }
+
 
         telegramBotService.sendMessage(chatId, "$text")
         telegramBotService.sendMenu(botToken, chatId)
