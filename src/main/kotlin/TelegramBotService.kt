@@ -42,11 +42,11 @@ class TelegramBotService(
             			[
             				{
             					"text": "Изучить слова",
-            					"callback_data": "$CALLBACK_DATA"
+            					"callback_data": "$LEARN_WORDS"
             				},
             				{
             					"text": "Статистика",
-            					"callback_data": "$CALLBACK_DATA1"
+            					"callback_data": "$STATISTICS"
             				}
             			]
             		]
@@ -64,5 +64,7 @@ class TelegramBotService(
     }
 }
 
-const val CALLBACK_DATA = "learn_words_clicked"
-const val CALLBACK_DATA1 = "statistics_clicked"
+const val LEARN_WORDS = "learn_words_clicked"
+const val STATISTICS = "statistics_clicked"
+const val MENU = "menu"
+const val START = "/start"
