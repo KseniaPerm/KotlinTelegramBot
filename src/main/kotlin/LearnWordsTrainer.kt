@@ -14,6 +14,7 @@ data class Statistics(
     val percent: Double,
 )
 
+
 data class Question(
     val variants: List<Word>,
     val correctAnswer: Word,
@@ -29,6 +30,7 @@ class LearnWordsTrainer {
         val learnedCount = dictionary.count { it.correctAnswerCount >= CORRECT_ANSWER }
         val percent = ((learnedCount.toDouble() / totalCount.toDouble()) * 100)
         return Statistics(totalCount, learnedCount, percent)
+
     }
 
     fun getNextQuestion(): Question? {
