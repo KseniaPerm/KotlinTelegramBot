@@ -46,10 +46,10 @@ fun main(args: Array<String>) {
             )
         }
         if (data?.lowercase() == LEARN_WORDS) {
-            telegramBotService.sendMessage(chatId, "Изучение слов")
+            val trainerLearnWords = trainer.getNextQuestion()
+            telegramBotService.sendQuestion(chatId, trainerLearnWords )
         }
 
-        telegramBotService.sendMessage(chatId, "$text")
         telegramBotService.sendMenu(botToken, chatId)
     }
 }
