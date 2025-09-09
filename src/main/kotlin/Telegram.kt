@@ -39,12 +39,15 @@ fun main(args: Array<String>) {
             telegramBotService.sendMenu(botToken, chatId)
         }
         if (data?.lowercase() == STATISTICS) {
-            telegramBotService.sendMessage(chatId, "Выучено 10 из 10 слов | 100%")
+            val trainerStat = trainer.getStatistics()
+            telegramBotService.sendMessage(
+                chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
+                        " Статистика: ${trainerStat.percent}"
+            )
         }
         if (data?.lowercase() == LEARN_WORDS) {
             telegramBotService.sendMessage(chatId, "Изучение слов")
         }
-
 
         telegramBotService.sendMessage(chatId, "$text")
         telegramBotService.sendMenu(botToken, chatId)
