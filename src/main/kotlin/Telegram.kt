@@ -11,6 +11,7 @@ fun main(args: Array<String>) {
     val dataRegex: Regex = "\"data\":\"(.+?)\"".toRegex()
     val trainer = LearnWordsTrainer()
 
+
     while (true) {
         Thread.sleep(2000)
         val updates: String = telegramBotService.getUpdates(updateId)
@@ -29,7 +30,6 @@ fun main(args: Array<String>) {
         val matchResult1: MatchResult? = chatIdRegex.find(updates)
         val groups1: MatchGroupCollection? = matchResult1?.groups
         val chatId: Long = groups1?.get(1)?.value?.toLongOrNull() ?: continue
-
         val data = dataRegex.find(updates)?.groups?.get(1)?.value?.decodeUnicode()
 
         if (text?.lowercase() == "hello") {
@@ -46,10 +46,17 @@ fun main(args: Array<String>) {
             )
         }
         if (data?.lowercase() == LEARN_WORDS) {
-            val trainerLearnWords = trainer.getNextQuestion()
-            telegramBotService.sendQuestion(chatId, trainerLearnWords )
+            if (data.startsWith("answer_")) {
+                val userAnswerIndex = data.removePrefix("answer_").toIntOrNull()
+                val isCorrect = trainer.checkAnswer(userAnswerIndex)
+                if (isCorrect) {
+                    telegramBotService.sendMessage(chatId, "Правильно")
+                } else {
+                    telegramBotService.sendMessage(chatId, "Неправильно")
+                }
+            }
+            telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId.toInt())
         }
-
         telegramBotService.sendMenu(botToken, chatId)
     }
 }

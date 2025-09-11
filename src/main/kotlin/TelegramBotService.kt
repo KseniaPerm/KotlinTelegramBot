@@ -31,37 +31,42 @@ class TelegramBotService(
 
     fun sendQuestion(chatId: Long, question: Question?): String? {
         if (question == null) return "Все слова выучены"
-        val correctAnswer = question.correctAnswer
+
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-        val answers = question.variants.filter { it != question.correctAnswer}.shuffled()
+        val answers = (question.variants.take(3) + question.correctAnswer).shuffled()
+        val allAnswers = answers.mapIndexed { index, answer -> answer.toString()
+        }
+
         val sendMenuBody = """
             {
             	"chat_id": $chatId,
-            	"text": "Выбрать правильный перевод: ${correctAnswer.original}",
+            	"text": "Выбрать правильный перевод: ${question.correctAnswer.original}",
             	"reply_markup": {
             		"inline_keyboard": [
             			[
             				{
-            					"text": "${correctAnswer.translate}",
-            					"callback_data": "$CALLBACK_DATA_ANSWER_PREFIX "
+            					"text": "${answers[0].translate}",
+            					"callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[0])}"
             				},
             				{
-            					"text": "${answers.random()}",
-            					"callback_data": "$CALLBACK_DATA_ANSWER_PREFIX "
+            					"text": "${answers[1].translate}",
+            					"callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[1])}"
             				},
                             {
-                            "text": "$question",
-                            "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX"
+                            "text": "${answers[2].translate}",
+                            "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[2])}"
                             },
                             {
-                            "text": "$question",
-                            "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX"
+                            "text": "${answers[3].translate}",
+                            "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[3])}"
                             }
             			]
             		]
             	}
             }
         """.trimIndent()
+
+
         val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(sendMenuBody))
@@ -70,6 +75,19 @@ class TelegramBotService(
         val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
         return response.body()
+    }
+
+    fun checkNextQuestionAndSend(
+        trainer: LearnWordsTrainer,
+        telegramBotService: TelegramBotService,
+        chatId: Int,
+    ) {
+        val question = trainer.getNextQuestion()
+        if (question == null) {
+            telegramBotService.sendMessage(chatId.toLong(), "Все слова выучены")
+        } else {
+            sendQuestion(chatId.toLong(), question)
+        }
     }
 
 
