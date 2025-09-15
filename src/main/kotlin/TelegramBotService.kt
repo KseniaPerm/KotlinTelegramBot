@@ -9,7 +9,6 @@ import java.net.http.HttpResponse
 class TelegramBotService(
     val botToken: String,
 ) {
-
     private val client: HttpClient = HttpClient.newBuilder().build()
 
     fun getUpdates(updateId: Int): String {
@@ -29,43 +28,31 @@ class TelegramBotService(
         return response.body()
     }
 
-    fun sendQuestion(chatId: Long, question: Question?): String? {
-        if (question == null) return "Все слова выучены"
-
+    fun sendQuestion(chatId: Long, question: Question): String? {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-        val answers = (question.variants.take(3) + question.correctAnswer).shuffled()
-        val allAnswers = answers.mapIndexed { index, answer -> answer.toString()
-        }
+        val keyboard = question.variants
+            .mapIndexed { index: Int, word: Word ->
+                """{ "text": "${word.translate}", "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"}"""
+            }
+            .joinToString(separator = ",", prefix = "[", postfix = "]")
+        val exit = """{"text": "Выход", "callback_data": "$MENU"}"""
+        val keyboardWithExit = """
+           [  
+               $keyboard, 
+               [$exit]
+           ]
+        """.trimIndent()
+
 
         val sendMenuBody = """
             {
             	"chat_id": $chatId,
             	"text": "Выбрать правильный перевод: ${question.correctAnswer.original}",
             	"reply_markup": {
-            		"inline_keyboard": [
-            			[
-            				{
-            					"text": "${answers[0].translate}",
-            					"callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[0])}"
-            				},
-            				{
-            					"text": "${answers[1].translate}",
-            					"callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[1])}"
-            				},
-                            {
-                            "text": "${answers[2].translate}",
-                            "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[2])}"
-                            },
-                            {
-                            "text": "${answers[3].translate}",
-                            "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${answers.indexOf(answers[3])}"
-                            }
-            			]
-            		]
+            		"inline_keyboard":  $keyboardWithExit
             	}
             }
         """.trimIndent()
-
 
         val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
             .header("Content-type", "application/json")
@@ -80,16 +67,15 @@ class TelegramBotService(
     fun checkNextQuestionAndSend(
         trainer: LearnWordsTrainer,
         telegramBotService: TelegramBotService,
-        chatId: Int,
+        chatId: Long,
     ) {
         val question = trainer.getNextQuestion()
         if (question == null) {
-            telegramBotService.sendMessage(chatId.toLong(), "Все слова выучены")
+            telegramBotService.sendMessage(chatId, "Все слова выучены")
         } else {
-            sendQuestion(chatId.toLong(), question)
+            sendQuestion(chatId, question)
         }
     }
-
 
     private fun String.encodeUrl(): String? = URLEncoder.encode(this, Charsets.UTF_8.name())
 

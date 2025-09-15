@@ -1,8 +1,8 @@
-hello|привет|3
+hello|привет|2
 dog|собака|0
-cat|кошка|0
-hat|шляпа|0
-pen|ручка|0
-glasses|очки|0
+cat|кошка|2
+hat|шляпа|1
+pen|ручка|2
+glasses|очки|3
 bracelet|браслет|0
-window|окно|1
+window|окно|3

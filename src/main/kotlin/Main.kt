@@ -71,4 +71,4 @@ fun main() {
 }
 
 const val CORRECT_ANSWER = 3
-const val NOT_LEARNED_WORDS = 4
+const val COUNT_OF_VARIANTS = 4
