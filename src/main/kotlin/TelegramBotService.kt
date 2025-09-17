@@ -9,7 +9,6 @@ import java.net.http.HttpResponse
 class TelegramBotService(
     val botToken: String,
 ) {
-
     private val client: HttpClient = HttpClient.newBuilder().build()
 
     fun getUpdates(updateId: Int): String {
@@ -27,6 +26,55 @@ class TelegramBotService(
         val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
         return response.body()
+    }
+
+    fun sendQuestion(chatId: Long, question: Question): String? {
+        val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+        val keyboard = question.variants
+            .mapIndexed { index: Int, word: Word ->
+                """{ "text": "${word.translate}", "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"}"""
+            }
+            .joinToString(separator = ",", prefix = "[", postfix = "]")
+        val exit = """{"text": "Выход", "callback_data": "$MENU"}"""
+        val keyboardWithExit = """
+           [  
+               $keyboard, 
+               [$exit]
+           ]
+        """.trimIndent()
+
+
+        val sendMenuBody = """
+            {
+            	"chat_id": $chatId,
+            	"text": "Выбрать правильный перевод: ${question.correctAnswer.original}",
+            	"reply_markup": {
+            		"inline_keyboard":  $keyboardWithExit
+            	}
+            }
+        """.trimIndent()
+
+        val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
+            .header("Content-type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(sendMenuBody))
+            .build()
+
+        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+        return response.body()
+    }
+
+    fun checkNextQuestionAndSend(
+        trainer: LearnWordsTrainer,
+        telegramBotService: TelegramBotService,
+        chatId: Long,
+    ) {
+        val question = trainer.getNextQuestion()
+        if (question == null) {
+            telegramBotService.sendMessage(chatId, "Все слова выучены")
+        } else {
+            sendQuestion(chatId, question)
+        }
     }
 
     private fun String.encodeUrl(): String? = URLEncoder.encode(this, Charsets.UTF_8.name())
@@ -68,3 +116,4 @@ const val LEARN_WORDS = "learn_words_clicked"
 const val STATISTICS = "statistics_clicked"
 const val MENU = "menu"
 const val START = "/start"
+const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"

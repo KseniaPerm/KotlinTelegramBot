@@ -16,41 +16,51 @@ fun main(args: Array<String>) {
         val updates: String = telegramBotService.getUpdates(updateId)
         println(updates)
 
-        val updateIdGroups = updateIdRegex.find(updates)?.groups
-        val newUpdateId = updateIdGroups?.get(1)?.value?.toInt() ?: 0
+        val newUpdateId = updateIdRegex.find(updates)?.groups?.get(1)?.value?.toIntOrNull() ?: continue
         updateId = newUpdateId + 1
 
-
-        val matchResult: MatchResult? = messageTextRegex.find(updates)
-        val groups = matchResult?.groups
-        val text = groups?.get(1)?.value?.decodeUnicode()
+        val text = messageTextRegex.find(updates)?.groups?.get(1)?.value?.decodeUnicode()
         println(text)
 
-        val matchResult1: MatchResult? = chatIdRegex.find(updates)
-        val groups1: MatchGroupCollection? = matchResult1?.groups
-        val chatId: Long = groups1?.get(1)?.value?.toLongOrNull() ?: continue
-
+        val chatId: Long = chatIdRegex.find(updates)?.groups?.get(1)?.value?.toLongOrNull() ?: continue
         val data = dataRegex.find(updates)?.groups?.get(1)?.value?.decodeUnicode()
 
-        if (text?.lowercase() == "hello") {
-            telegramBotService.sendMessage(chatId, "Hello")
-        }
-        if (text?.lowercase() == MENU && text == START) {
-            telegramBotService.sendMenu(botToken, chatId)
-        }
-        if (data?.lowercase() == STATISTICS) {
-            val trainerStat = trainer.getStatistics()
-            telegramBotService.sendMessage(
-                chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
-                        " Статистика: ${trainerStat.percent}"
-            )
-        }
-        if (data?.lowercase() == LEARN_WORDS) {
-            telegramBotService.sendMessage(chatId, "Изучение слов")
-        }
+        when {
+            text?.lowercase() == MENU || text == START -> {
+                telegramBotService.sendMenu(botToken, chatId)
+            }
 
-        telegramBotService.sendMessage(chatId, "$text")
-        telegramBotService.sendMenu(botToken, chatId)
+            data?.lowercase() == STATISTICS -> {
+                val trainerStat = trainer.getStatistics()
+                telegramBotService.sendMessage(
+                    chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
+                            " Статистика: ${trainerStat.percent}"
+                )
+            }
+
+            data?.lowercase() == LEARN_WORDS -> {
+                telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId)
+            }
+
+            data?.lowercase() == MENU -> {
+                telegramBotService.sendMenu(botToken, chatId)
+            }
+
+            data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) ?: false -> {
+
+                val userAnswerIndex = data.removePrefix(CALLBACK_DATA_ANSWER_PREFIX).toIntOrNull()
+
+                val isCorrect = trainer.checkAnswer(userAnswerIndex)
+                if (isCorrect) {
+                    telegramBotService.sendMessage(chatId, "Правильно")
+                } else {
+                    telegramBotService.sendMessage(chatId, "Неправильно")
+                }
+
+                telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId)
+
+            }
+        }
     }
 }
 

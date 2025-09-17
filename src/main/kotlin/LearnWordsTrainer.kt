@@ -20,30 +20,34 @@ data class Question(
     val correctAnswer: Word,
 )
 
-class LearnWordsTrainer {
+class LearnWordsTrainer(
+    val correctAnswerThreashold: Int = CORRECT_ANSWER,
+    val countOfVariants: Int = COUNT_OF_VARIANTS,
+) {
 
     private var question: Question? = null
     private val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {
         val totalCount = dictionary.count()
-        val learnedCount = dictionary.count { it.correctAnswerCount >= CORRECT_ANSWER }
+        val learnedCount = dictionary.count { it.correctAnswerCount >= correctAnswerThreashold }
         val percent = ((learnedCount.toDouble() / totalCount.toDouble()) * 100)
         return Statistics(totalCount, learnedCount, percent)
 
     }
 
     fun getNextQuestion(): Question? {
-        val notLearnedList = dictionary.filter { it.correctAnswerCount < CORRECT_ANSWER }
+        val notLearnedList = dictionary.filter { it.correctAnswerCount < correctAnswerThreashold }
         if (notLearnedList.isEmpty()) return null
-        val questionWords = if (notLearnedList.size < NOT_LEARNED_WORDS) {
-            val learnedList = dictionary.filter { it.correctAnswerCount >= CORRECT_ANSWER }.shuffled()
-            notLearnedList.shuffled()
-                .take(NOT_LEARNED_WORDS) + learnedList.take(NOT_LEARNED_WORDS - notLearnedList.size)
+        val variants = notLearnedList.shuffled().take(countOfVariants)
+        val correctAnswer = variants.random()
+        val questionWords = if (variants.size < countOfVariants) {
+            val learnedList = dictionary.filter { it.correctAnswerCount >= correctAnswerThreashold }.shuffled()
+            variants + learnedList.take(countOfVariants - notLearnedList.size)
         } else {
-            notLearnedList.shuffled().take(NOT_LEARNED_WORDS)
+            variants
         }.shuffled()
-        val correctAnswer = questionWords.random()
+
 
         question = Question(
             variants = questionWords,
@@ -63,6 +67,7 @@ class LearnWordsTrainer {
                 false
             }
         } ?: false
+
     }
 
     private fun loadDictionary(): MutableList<Word> {
