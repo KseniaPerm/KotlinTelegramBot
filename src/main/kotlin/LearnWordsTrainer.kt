@@ -25,7 +25,7 @@ class LearnWordsTrainer(
     val countOfVariants: Int = COUNT_OF_VARIANTS,
 ) {
 
-    private var question: Question? = null
+    var question: Question? = null
     private val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {

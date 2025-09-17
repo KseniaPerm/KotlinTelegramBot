@@ -49,16 +49,17 @@ fun main(args: Array<String>) {
             data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) ?: false -> {
 
                 val userAnswerIndex = data.removePrefix(CALLBACK_DATA_ANSWER_PREFIX).toIntOrNull()
+                val lastQuestion = trainer.question
 
                 val isCorrect = trainer.checkAnswer(userAnswerIndex)
                 if (isCorrect) {
                     telegramBotService.sendMessage(chatId, "Правильно")
                 } else {
-                    telegramBotService.sendMessage(chatId, "Неправильно")
+                    val wordToTranslate = lastQuestion?.correctAnswer?.original
+                    val correctAnswer = lastQuestion?.correctAnswer?.translate
+                    telegramBotService.sendMessage(chatId, "Неправильно! $wordToTranslate - это $correctAnswer")
                 }
-
                 telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId)
-
             }
         }
     }
