@@ -71,7 +71,7 @@ fun main(args: Array<String>) {
 
     val botToken = args[0]
     var lastUpdateId = 0L
-    val telegramBotService = TelegramBotService(botToken)
+    val telegramBotService = TelegramBotService(botToken, Json)
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -103,7 +103,7 @@ fun main(args: Array<String>) {
             data?.lowercase() == STATISTICS -> {
                 val trainerStat = trainer.getStatistics()
                 telegramBotService.sendMessage(
-                    json, botToken,
+                     botToken,
                     chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
                             " Статистика: ${trainerStat.percent}"
                 )
@@ -124,12 +124,11 @@ fun main(args: Array<String>) {
 
                 val isCorrect = trainer.checkAnswer(userAnswerIndex)
                 if (isCorrect) {
-                    telegramBotService.sendMessage(json, botToken, chatId, "Правильно!")
+                    telegramBotService.sendMessage( botToken, chatId, "Правильно!")
                 } else {
                     val wordToTranslate = lastQuestion?.correctAnswer?.original
                     val correctAnswer = lastQuestion?.correctAnswer?.translate
                     telegramBotService.sendMessage(
-                        json,
                         botToken,
                         chatId,
                         "Неправильно! $wordToTranslate - это $correctAnswer"
