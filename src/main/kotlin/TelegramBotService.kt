@@ -8,6 +8,7 @@ import java.net.http.HttpResponse
 
 class TelegramBotService(
     val botToken: String,
+    val json: Json,
 ) {
     private val client: HttpClient = HttpClient.newBuilder().build()
 
@@ -19,7 +20,7 @@ class TelegramBotService(
         return response.body().toString()
     }
 
-    fun sendMessage(json: Json, botToken: String, chatId: Long?, message: String): String {
+    fun sendMessage(botToken: String, chatId: Long?, message: String): String {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -97,7 +98,7 @@ class TelegramBotService(
     ) {
         val question = trainer.getNextQuestion()
         if (question == null) {
-            telegramBotService.sendMessage(json, botToken, chatId, "Все слова выучены")
+            telegramBotService.sendMessage(botToken, chatId, "Все слова выучены")
         } else {
             sendQuestion(json, chatId, question)
         }
@@ -116,7 +117,6 @@ class TelegramBotService(
                     )
                 )
             )
-
         )
         val requestBodyString = json.encodeToString(requestBody)
 
