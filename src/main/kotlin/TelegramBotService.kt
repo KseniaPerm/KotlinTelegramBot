@@ -66,14 +66,16 @@ class TelegramBotService(
             chatId = chatId,
             text = question.correctAnswer.original,
             replyMarkup = ReplyMarkup(
-                listOf(question.variants.mapIndexed { index, word ->
-                    InlineKeyboard(
-                        text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
-                    )
+                listOf(
+                    question.variants.mapIndexed { index, word ->
+                        InlineKeyboard(
+                            text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
 
-                })
+                        )
+                    },
+                    listOf(InlineKeyboard(text = "Выход", callbackData = MENU))
+                )
             )
-
         )
         val requestBodyString = json.encodeToString(requestBody)
 
