@@ -102,15 +102,20 @@ fun main(args: Array<String>) {
 
             data?.lowercase() == STATISTICS -> {
                 val trainerStat = trainer.getStatistics()
-                if (chatId != null) {
-                    telegramBotService.sendMessage(
-                        chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
-                                " Статистика: ${trainerStat.percent}"
-                    )
-                }
+                val chatId = firstUpdate.message?.chat?.id
+                    ?: firstUpdate.callbackQuery.message?.chat?.id
+                    ?: continue
+                telegramBotService.sendMessage(
+                    chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
+                            " Статистика: ${trainerStat.percent}"
+                )
             }
 
+
             data?.lowercase() == LEARN_WORDS -> {
+                val chatId = firstUpdate.message?.chat?.id
+                    ?: firstUpdate.callbackQuery.message?.chat?.id
+                    ?: continue
                 telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId)
             }
 
