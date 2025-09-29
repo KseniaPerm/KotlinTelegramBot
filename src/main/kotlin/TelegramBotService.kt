@@ -8,6 +8,7 @@ import java.net.http.HttpResponse
 
 class TelegramBotService(
     val botToken: String,
+    val json: Json,
 ) {
     private val client: HttpClient = HttpClient.newBuilder().build()
 
@@ -19,7 +20,7 @@ class TelegramBotService(
         return response.body().toString()
     }
 
-    fun sendMessage(json: Json, botToken: String, chatId: Long?, message: String): String {
+    fun sendMessage(chatId: Long, message: String): String {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -37,31 +38,8 @@ class TelegramBotService(
         return response.body().toString()
     }
 
-    fun sendQuestion(json: Json, chatId: Long?, question: Question): String? {
+    fun sendQuestion(chatId: Long, question: Question): String? {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-        val keyboard = question.variants
-            .mapIndexed { index: Int, word: Word ->
-                """{ "text": "${word.translate}", "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"}"""
-            }
-            .joinToString(separator = ",", prefix = "[", postfix = "]")
-        val exit = """{"text": "Выход", "callback_data": "$MENU"}"""
-        val keyboardWithExit = """
-           [  
-               $keyboard, 
-               [$exit]
-           ]
-        """.trimIndent()
-
-        val sendMenuBody = """
-            {
-            	"chat_id": $chatId,
-            	"text": "Выбрать правильный перевод: ${question.correctAnswer.original}",
-            	"reply_markup": {
-            		"inline_keyboard":  $keyboardWithExit
-            	}
-            }
-        """.trimIndent()
-
         val requestBody = SendMessageRequest(
             chatId = chatId,
             text = question.correctAnswer.original,
@@ -90,16 +68,15 @@ class TelegramBotService(
     }
 
     fun checkNextQuestionAndSend(
-        json: Json,
         trainer: LearnWordsTrainer,
         telegramBotService: TelegramBotService,
-        chatId: Long?,
+        chatId: Long,
     ) {
         val question = trainer.getNextQuestion()
         if (question == null) {
-            telegramBotService.sendMessage(json, botToken, chatId, "Все слова выучены")
+            telegramBotService.sendMessage(chatId, "Все слова выучены")
         } else {
-            sendQuestion(json, chatId, question)
+            sendQuestion(chatId, question)
         }
     }
 
@@ -116,7 +93,6 @@ class TelegramBotService(
                     )
                 )
             )
-
         )
         val requestBodyString = json.encodeToString(requestBody)
 
