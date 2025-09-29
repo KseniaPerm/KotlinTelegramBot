@@ -92,7 +92,7 @@ fun main(args: Array<String>) {
         val text = firstUpdate.message?.text
         println(text)
 
-        val chatId = firstUpdate.message?.chat?.id ?: firstUpdate.callbackQuery?.message?.chat?.id
+        val chatId = firstUpdate.message?.chat?.id ?: firstUpdate.callbackQuery?.message?.chat?.id ?: continue
         val data = firstUpdate.callbackQuery?.data
 
         when {
@@ -102,15 +102,11 @@ fun main(args: Array<String>) {
 
             data?.lowercase() == STATISTICS -> {
                 val trainerStat = trainer.getStatistics()
-                val chatId = firstUpdate.message?.chat?.id
-                    ?: firstUpdate.callbackQuery.message?.chat?.id
-                    ?: continue
                 telegramBotService.sendMessage(
                     chatId, "Всего слов: ${trainerStat.totalCount}, Выучено: ${trainerStat.learnedCount}," +
                             " Статистика: ${trainerStat.percent}"
                 )
             }
-
 
             data?.lowercase() == LEARN_WORDS -> {
                 val chatId = firstUpdate.message?.chat?.id
@@ -129,19 +125,18 @@ fun main(args: Array<String>) {
                 val lastQuestion = trainer.question
 
                 val isCorrect = trainer.checkAnswer(userAnswerIndex)
-                if (chatId != null) {
-                    if (isCorrect) {
-                        telegramBotService.sendMessage(chatId, "Правильно!")
-                    } else {
-                        val wordToTranslate = lastQuestion?.correctAnswer?.original
-                        val correctAnswer = lastQuestion?.correctAnswer?.translate
-                        telegramBotService.sendMessage(
-                            chatId,
-                            "Неправильно! $wordToTranslate - это $correctAnswer"
-                        )
-                    }
-                    telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId)
+
+                if (isCorrect) {
+                    telegramBotService.sendMessage(chatId, "Правильно!")
+                } else {
+                    val wordToTranslate = lastQuestion?.correctAnswer?.original
+                    val correctAnswer = lastQuestion?.correctAnswer?.translate
+                    telegramBotService.sendMessage(
+                        chatId,
+                        "Неправильно! $wordToTranslate - это $correctAnswer"
+                    )
                 }
+                telegramBotService.checkNextQuestionAndSend(trainer, telegramBotService, chatId)
             }
         }
     }
