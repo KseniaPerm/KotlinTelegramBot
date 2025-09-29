@@ -16,16 +16,17 @@ data class Statistics(
     val percent: Double,
 )
 
-
 data class Question(
     val variants: List<Word>,
     val correctAnswer: Word,
 )
 
 class LearnWordsTrainer(
+    val fileName: String = "words.txt",
     val correctAnswerThreashold: Int = CORRECT_ANSWER,
     val countOfVariants: Int = COUNT_OF_VARIANTS,
-) {
+
+    ) {
 
     var question: Question? = null
     private val dictionary = loadDictionary()
@@ -35,7 +36,6 @@ class LearnWordsTrainer(
         val learnedCount = dictionary.count { it.correctAnswerCount >= correctAnswerThreashold }
         val percent = ((learnedCount.toDouble() / totalCount.toDouble()) * 100)
         return Statistics(totalCount, learnedCount, percent)
-
     }
 
     fun getNextQuestion(): Question? {
@@ -50,7 +50,6 @@ class LearnWordsTrainer(
             variants
         }.shuffled()
 
-
         question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,
@@ -63,20 +62,22 @@ class LearnWordsTrainer(
             val correctAnswerId = it.variants.indexOf(it.correctAnswer)
             if (correctAnswerId == userAnswerIndex) {
                 it.correctAnswer.correctAnswerCount++
-                saveDictionary(dictionary)
+                saveDictionary()
                 true
             } else {
                 false
             }
         } ?: false
-
     }
 
     private fun loadDictionary(): MutableList<Word> {
         try {
-            val wordsFile = File("words.txt")
+            val wordsFile = File(fileName)
+            if (!wordsFile.exists()) {
+                File("words.txt").copyTo(wordsFile)
+            }
             val lines: List<String> = wordsFile.readLines()
-            val dictionary: MutableList<Word> = mutableListOf()
+            val dictionary = mutableListOf<Word>()
             for (line in lines) {
                 val line = line.split("|")
                 val word =
@@ -89,11 +90,16 @@ class LearnWordsTrainer(
         }
     }
 
-    private fun saveDictionary(words: MutableList<Word>) {
-        val wordsFile = File("words.txt")
+    private fun saveDictionary() {
+        val wordsFile = File(fileName)
         wordsFile.writeText("")
-        for (word in words) {
+        for (word in dictionary) {
             wordsFile.appendText("${word.original}|${word.translate}|${word.correctAnswerCount}\n")
         }
+    }
+
+    fun resetProgress() {
+        dictionary.forEach { it.correctAnswerCount = 0 }
+        saveDictionary()
     }
 }
