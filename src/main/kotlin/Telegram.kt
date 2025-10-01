@@ -82,15 +82,13 @@ fun main(args: Array<String>) {
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
-        sortedUpdates.forEach { handleUpdate(it, json, botToken, trainers, telegramBotService) }
+        sortedUpdates.forEach { handleUpdate(it, trainers, telegramBotService) }
         lastUpdateId = sortedUpdates.last().updateId + 1
     }
 }
 
 fun handleUpdate(
     update: Update,
-    json: Json,
-    botToken: String,
     trainers: HashMap<Long, LearnWordsTrainer>,
     telegramBotService: TelegramBotService,
 ) {
@@ -106,7 +104,7 @@ fun handleUpdate(
 
     when {
         (message?.lowercase() == MENU) || ((message == START)) -> {
-            telegramBotService.sendMenu(json, botToken, chatId)
+            telegramBotService.sendMenu(Json, chatId)
         }
 
         data?.lowercase() == STATISTICS -> {
@@ -128,7 +126,7 @@ fun handleUpdate(
         }
 
         data?.lowercase() == MENU -> {
-            telegramBotService.sendMenu(json, botToken, chatId)
+            telegramBotService.sendMenu(Json,chatId)
         }
 
         data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) ?: false -> {
