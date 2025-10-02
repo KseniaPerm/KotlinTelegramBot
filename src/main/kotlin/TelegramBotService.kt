@@ -80,7 +80,7 @@ class TelegramBotService(
         }
     }
 
-    fun sendMenu(json: Json, chatId: Long?): String? {
+    fun sendMenu(chatId: Long): String? {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,

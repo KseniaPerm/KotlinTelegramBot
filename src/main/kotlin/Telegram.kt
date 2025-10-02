@@ -104,7 +104,7 @@ fun handleUpdate(
 
     when {
         (message?.lowercase() == MENU) || ((message == START)) -> {
-            telegramBotService.sendMenu(Json, chatId)
+            telegramBotService.sendMenu(chatId)
         }
 
         data?.lowercase() == STATISTICS -> {
@@ -126,7 +126,7 @@ fun handleUpdate(
         }
 
         data?.lowercase() == MENU -> {
-            telegramBotService.sendMenu(Json,chatId)
+            telegramBotService.sendMenu(chatId)
         }
 
         data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) ?: false -> {
