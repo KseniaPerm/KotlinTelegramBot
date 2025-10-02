@@ -80,7 +80,7 @@ class TelegramBotService(
         }
     }
 
-    fun sendMenu(json: Json, botToken: String, chatId: Long?): String? {
+    fun sendMenu(chatId: Long): String? {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -90,6 +90,9 @@ class TelegramBotService(
                     listOf(
                         InlineKeyboard(text = "Изучить слова", callbackData = LEARN_WORDS),
                         InlineKeyboard(text = "Статистика", callbackData = STATISTICS),
+                    ),
+                    listOf(
+                        InlineKeyboard(text = "Сбросить прогресс", callbackData = RESET_CLICKED)
                     )
                 )
             )
@@ -109,6 +112,7 @@ class TelegramBotService(
 
 const val LEARN_WORDS = "learn_words_clicked"
 const val STATISTICS = "statistics_clicked"
+const val RESET_CLICKED = "reset_clicked"
 const val MENU = "menu"
 const val START = "/start"
 const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
