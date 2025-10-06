@@ -1,6 +1,8 @@
-package org.example
+
 
 import kotlinx.serialization.Serializable
+import org.example.CORRECT_ANSWER
+import org.example.COUNT_OF_VARIANTS
 import java.io.File
 
 @Serializable
