@@ -1,8 +1,9 @@
+import org.gradle.kotlin.dsl.invoke
 
 
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm") version "1.8.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     kotlin("plugin.serialization") version "2.2.20"
     application
 }
@@ -23,9 +24,9 @@ tasks.test {
     useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(23)
+    jvmToolchain(17)
 }
 
-
-application {mainClass.set("TelegramKt")
+application {
+    mainClass.set("ru.ksenia.bot.telegram.TelegramKt")
 }

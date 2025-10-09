@@ -1,6 +1,10 @@
-package org.example
-
+package ru.ksenia.bot.telegram.api
 import kotlinx.serialization.json.Json
+import ru.ksenia.bot.trainer.LearnWordsTrainer
+import ru.ksenia.bot.trainer.model.Question
+import ru.ksenia.bot.telegram.api.entity.InlineKeyboard
+import ru.ksenia.bot.telegram.api.entity.ReplyMarkup
+import ru.ksenia.bot.telegram.api.entity.SendMessageRequest
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -51,7 +55,12 @@ class TelegramBotService(
 
                         )
                     },
-                    listOf(InlineKeyboard(text = "Выход", callbackData = MENU))
+                    listOf(
+                        InlineKeyboard(
+                            text = "Выход",
+                            callbackData = MENU
+                        )
+                    )
                 )
             )
         )
@@ -88,11 +97,20 @@ class TelegramBotService(
             replyMarkup = ReplyMarkup(
                 listOf(
                     listOf(
-                        InlineKeyboard(text = "Изучить слова", callbackData = LEARN_WORDS),
-                        InlineKeyboard(text = "Статистика", callbackData = STATISTICS),
+                        InlineKeyboard(
+                            text = "Изучить слова",
+                            callbackData = LEARN_WORDS
+                        ),
+                        InlineKeyboard(
+                            text = "Статистика",
+                            callbackData = STATISTICS
+                        ),
                     ),
                     listOf(
-                        InlineKeyboard(text = "Сбросить прогресс", callbackData = RESET_CLICKED)
+                        InlineKeyboard(
+                            text = "Сбросить прогресс",
+                            callbackData = RESET_CLICKED
+                        )
                     )
                 )
             )
