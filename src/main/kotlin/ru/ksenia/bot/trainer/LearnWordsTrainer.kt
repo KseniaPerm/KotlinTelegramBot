@@ -1,25 +1,11 @@
-package org.example
+package ru.ksenia.bot.trainer
 
-import kotlinx.serialization.Serializable
+import ru.ksenia.bot.console.CORRECT_ANSWER
+import ru.ksenia.bot.console.COUNT_OF_VARIANTS
+import ru.ksenia.bot.trainer.model.Question
+import ru.ksenia.bot.trainer.model.Statistics
+import ru.ksenia.bot.trainer.model.Word
 import java.io.File
-
-@Serializable
-data class Word(
-    val original: String,
-    val translate: String,
-    var correctAnswerCount: Int = 0,
-)
-
-data class Statistics(
-    val totalCount: Int,
-    val learnedCount: Int,
-    val percent: Double,
-)
-
-data class Question(
-    val variants: List<Word>,
-    val correctAnswer: Word,
-)
 
 class LearnWordsTrainer(
     val fileName: String = "words.txt",

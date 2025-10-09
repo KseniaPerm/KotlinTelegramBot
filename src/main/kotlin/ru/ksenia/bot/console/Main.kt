@@ -1,5 +1,8 @@
-package org.example
+package ru.ksenia.bot.console
 
+import ru.ksenia.bot.trainer.LearnWordsTrainer
+import ru.ksenia.bot.trainer.model.Question
+import ru.ksenia.bot.trainer.model.Word
 import kotlin.Int
 import kotlin.String
 
