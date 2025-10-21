@@ -1,0 +1,10 @@
+package ru.ksenia.bot.telegram.api.entity
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Chat(
+    @SerialName("id")
+    val id: Long,
+)
