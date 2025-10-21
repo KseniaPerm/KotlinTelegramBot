@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Response(
-    @SerialName("result")
-    val result: List<Update>,
+   // @SerialName("result")
+    val ok: Boolean,
+    val result: List<Update>? = null,
+    val description: String? = null,
 )

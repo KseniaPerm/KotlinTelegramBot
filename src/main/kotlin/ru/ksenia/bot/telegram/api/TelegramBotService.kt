@@ -1,4 +1,5 @@
 package ru.ksenia.bot.telegram.api
+
 import kotlinx.serialization.json.Json
 import ru.ksenia.bot.trainer.LearnWordsTrainer
 import ru.ksenia.bot.trainer.model.Question
@@ -16,15 +17,20 @@ class TelegramBotService(
 ) {
     private val client: HttpClient = HttpClient.newBuilder().build()
 
-    fun getUpdates(updateId: Long): String {
+    fun getUpdates(updateId: Long): String? {
         val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
-        val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-        return response.body().toString()
+        val request = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
+        return try {
+            val response= client.send(request, HttpResponse.BodyHandlers.ofString())
+            response.body()
+        } catch (e: Exception) {
+            println("Ошибка : ${e.message}")
+            null
+        }
     }
 
-    fun sendMessage(chatId: Long, message: String): String {
+
+    fun sendMessage(chatId: Long, message: String): String? {
         val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -36,10 +42,15 @@ class TelegramBotService(
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
             .build()
+        return try {
+            val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
+            response.body().toString()
+        } catch (e: Exception) {
+            println("Ошибка : ${e.message}")
+            null
+        }
 
-        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
-        return response.body().toString()
     }
 
     fun sendQuestion(chatId: Long, question: Question): String? {
@@ -49,12 +60,14 @@ class TelegramBotService(
             text = question.correctAnswer.original,
             replyMarkup = ReplyMarkup(
                 listOf(
-                    question.variants.mapIndexed { index, word ->
-                        InlineKeyboard(
-                            text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
-
+                    *question.variants.mapIndexed { index, word ->
+                        listOf(
+                            InlineKeyboard(
+                                text = word.translate,
+                                callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
+                            )
                         )
-                    },
+                    }.toTypedArray(),
                     listOf(
                         InlineKeyboard(
                             text = "Выход",
@@ -64,16 +77,21 @@ class TelegramBotService(
                 )
             )
         )
+
         val requestBodyString = json.encodeToString(requestBody)
 
         val request: HttpRequest? = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
             .build()
+        return try {
+            val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
+            response.body()
+        } catch (e: Exception) {
+            println("Ошибка")
+            null
+        }
 
-        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-        return response.body()
     }
 
     fun checkNextQuestionAndSend(
@@ -121,10 +139,13 @@ class TelegramBotService(
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
             .build()
-
-        val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-        return response.body()
+        return try {
+            val response: HttpResponse<String?> = client.send(request, HttpResponse.BodyHandlers.ofString())
+            response.body()
+        } catch (e: Exception) {
+            println("Ошибка")
+            null
+        }
     }
 }
 

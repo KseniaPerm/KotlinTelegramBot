@@ -1,3 +1,4 @@
+
 package ru.ksenia.bot.telegram
 
 import kotlinx.serialization.json.Json
@@ -12,6 +13,7 @@ import ru.ksenia.bot.telegram.api.STATISTICS
 import ru.ksenia.bot.telegram.api.TelegramBotService
 import ru.ksenia.bot.trainer.LearnWordsTrainer
 
+
 fun main(args: Array<String>) {
 
     val botToken = args[0]
@@ -23,10 +25,13 @@ fun main(args: Array<String>) {
 
     while (true) {
         Thread.sleep(2000)
-        val responseString: String = telegramBotService.getUpdates(lastUpdateId)
+        val responseString: String? = telegramBotService.getUpdates(lastUpdateId)
         println(responseString)
-        val response: Response = json.decodeFromString(responseString)
-        if (response.result.isEmpty()) continue
+        if (responseString.isNullOrEmpty() ){
+            continue
+        }
+        val response: Response = json.decodeFromString<Response>(responseString)
+        if (response.result.isNullOrEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
         sortedUpdates.forEach { handleUpdate(it, trainers, telegramBotService) }
         lastUpdateId = sortedUpdates.last().updateId + 1
