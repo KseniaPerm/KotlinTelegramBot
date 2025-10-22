@@ -1,4 +1,4 @@
-package org.example
+package ru.ksenia.bot.trainer.bot
 
 import kotlin.Int
 import kotlin.String
