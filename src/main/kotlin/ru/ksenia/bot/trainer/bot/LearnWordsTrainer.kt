@@ -1,4 +1,4 @@
-package org.example
+package ru.ksenia.bot.trainer.bot
 
 import kotlinx.serialization.Serializable
 import java.io.File

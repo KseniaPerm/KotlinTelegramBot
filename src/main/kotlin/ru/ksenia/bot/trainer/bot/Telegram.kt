@@ -1,16 +1,8 @@
-
+package ru.ksenia.bot.trainer.bot
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.example.CALLBACK_DATA_ANSWER_PREFIX
-import org.example.LEARN_WORDS
-import org.example.LearnWordsTrainer
-import org.example.MENU
-import org.example.RESET_CLICKED
-import org.example.START
-import org.example.STATISTICS
-import org.example.TelegramBotService
 
 @Serializable
 data class Update(
